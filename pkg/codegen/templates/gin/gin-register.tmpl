@@ -19,10 +19,13 @@ Handler: si,
 }
 {{end}}
 
-router = router.Group(options.BaseURL, options.Middlewares...)
+router = router.Group(options.BaseURL)
 
 {{range .}}
-router.{{.Method }}("{{.Path | swaggerUriToGinUri }}", wrapper.{{.OperationId}})
+router.
+    {{if .SecurityDefinitions}}Use(wrapper.{{.OperationId}}Auth).{{end}}
+    Use(options.Middlewares...).
+    {{.Method }}("{{.Path | swaggerUriToGinUri }}", wrapper.{{.OperationId}})
 {{end}}
 return router
 }

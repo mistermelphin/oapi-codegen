@@ -5,6 +5,15 @@ type ServerInterfaceWrapper struct {
 
 {{range .}}{{$opid := .OperationId}}
 
+{{if .SecurityDefinitions}}
+// {{$opid}}Auth Auth middleware
+func (siw *ServerInterfaceWrapper) {{$opid}}Auth(c *gin.Context){
+    {{range .SecurityDefinitions}}
+    c.Set({{.ProviderName | ucFirst}}Scopes, {{toStringArray .Scopes}})
+    {{end}}
+}
+{{end}}
+
 // {{$opid}} operation middleware
 func (siw *ServerInterfaceWrapper) {{$opid}}(c *gin.Context) {
 
@@ -34,10 +43,6 @@ func (siw *ServerInterfaceWrapper) {{$opid}}(c *gin.Context) {
   {{end}}
 
   {{end}}
-
-{{range .SecurityDefinitions}}
-  c.Set({{.ProviderName | ucFirst}}Scopes, {{toStringArray .Scopes}})
-{{end}}
 
   {{if .RequiresParamObject}}
     // Parameter object where we will unmarshal all parameters from the context

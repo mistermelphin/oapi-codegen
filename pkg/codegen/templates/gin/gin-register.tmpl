@@ -22,10 +22,10 @@ Handler: si,
 router = router.Group(options.BaseURL)
 
 {{range .}}
-router.{{.Method }}("{{.Path | swaggerUriToGinUri }}", combineGinRoutes(
-    {{if .SecurityDefinitions}}wrapper.{{.OperationId}}Auth,{{end}}
-    options.Middlewares,
-    wrapper.{{.OperationId}})...)
+router.{{.Method }}("{{.Path | swaggerUriToGinUri }}", combineGinRoutes({{if .SecurityDefinitions}}
+    gin.HandlerFunc(wrapper.{{.OperationId}}Auth),
+{{end}}    options.Middlewares,
+    gin.HandlerFunc(wrapper.{{.OperationId}}))...)
 {{end}}
 return router
 }

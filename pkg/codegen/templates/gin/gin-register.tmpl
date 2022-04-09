@@ -25,7 +25,7 @@ router = router.Group(options.BaseURL)
 router.{{.Method }}("{{.Path | swaggerUriToGinUri }}", combineGinRoutes(
     {{if .SecurityDefinitions}}wrapper.{{.OperationId}}Auth,{{end}}
     options.Middlewares,
-    wrapper.{{.OperationId}}))
+    wrapper.{{.OperationId}})...)
 {{end}}
 return router
 }

@@ -22,10 +22,23 @@ Handler: si,
 router = router.Group(options.BaseURL)
 
 {{range .}}
-router.
-    {{if .SecurityDefinitions}}Use(wrapper.{{.OperationId}}Auth).{{end}}
-    Use(options.Middlewares...).
-    {{.Method }}("{{.Path | swaggerUriToGinUri }}", wrapper.{{.OperationId}})
+router.{{.Method }}("{{.Path | swaggerUriToGinUri }}", combineGinRoutes(
+    {{if .SecurityDefinitions}}wrapper.{{.OperationId}}Auth,{{end}}
+    options.Middlewares,
+    wrapper.{{.OperationId}}))
 {{end}}
 return router
+}
+
+func combineGinRoutes(items...interface{})[]gin.HandlerFunc{
+    res:=make([]gin.HandlerFunc,0,len(items))
+    for _, it := range items {
+        switch v:=it.(type) {
+        case gin.HandlerFunc:
+            res = append(res, v)
+        case []gin.HandlerFunc:
+            res = append(res,v...)
+        }
+    }
+    return res
 }
